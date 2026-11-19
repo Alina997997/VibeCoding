@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A sample table of student bank transactions in Germany.">
+  <title>Sample Student Bank Transactions</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow" data-i18n="eyebrow">Sample dataset</p>
+        <h1 data-i18n="title">Student Bank Transactions</h1>
+        <p class="intro" data-i18n="intro">Example transactions for a student living in Germany, from April to September 2026.</p>
+      </div>
+      <img class="hero-image" src="flamingos.svg" alt="Two flamingos standing in shallow water">
+    </header>
+
+    <div class="page-toolbar">
+      <button class="button-link" id="language-toggle" type="button" aria-label="Switch language to German">Deutsch</button>
+    </div>
+
+    <section class="add-transaction" aria-labelledby="form-heading">
+      <h2 id="form-heading" data-i18n="formHeading">Add a transaction</h2>
+      <form class="transaction-form" id="transaction-form">
+        <label>
+          <span data-i18n="dateLabel">Date</span>
+          <input name="date" type="date" required>
+        </label>
+        <label>
+          <span data-i18n="amountLabel">Amount (EUR)</span>
+          <input name="amount" type="number" step="0.01" required>
+          <small data-i18n="amountHint">Use a minus sign for expenses.</small>
+        </label>
+        <label>
+          <span data-i18n="recipientLabel">Recipient</span>
+          <input name="recipient" type="text" required>
+        </label>
+        <label>
+          <span data-i18n="ibanLabel">Account Number (IBAN)</span>
+          <input name="iban" type="text">
+        </label>
+        <label>
+          <span data-i18n="purposeLabel">Purpose</span>
+          <input name="purpose" type="text" required>
+        </label>
+        <label>
+          <span data-i18n="categoryLabel">Category</span>
+          <select name="category" required>
+            <option value="Food, Housing & Household" data-i18n="categoryFood">Food, Housing & Household</option>
+            <option value="Transport" data-i18n="categoryTransport">Transport</option>
+            <option value="Health & Fitness" data-i18n="categoryHealth">Health & Fitness</option>
+            <option value="Leisure & Entertainment" data-i18n="categoryLeisure">Leisure & Entertainment</option>
+            <option value="Other" data-i18n="categoryOther">Other</option>
+          </select>
+        </label>
+        <button class="button-link submit-button" type="submit" data-i18n="addButton">Add transaction</button>
+        <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="table-card" aria-label="Bank transaction data" data-i18n-aria-label="transactionsLabel">
+      <div class="table-scroll">
+        <table>
+          <caption data-i18n="transactionCaption">Transaction records from the sample CSV dataset</caption>
+          <thead>
+            <tr>
+              <th scope="col" aria-sort="none">
+                <button class="sort-button" type="button" data-sort="0"><span data-i18n="dateLabel">Date</span><span class="sort-indicator" aria-hidden="true"></span></button>
+              </th>
+              <th scope="col" class="amount" aria-sort="none">
+                <button class="sort-button" type="button" data-sort="1"><span data-i18n="amountLabel">Amount (EUR)</span><span class="sort-indicator" aria-hidden="true"></span></button>
+              </th>
+              <th scope="col" data-i18n="recipientLabel">Recipient</th>
+              <th scope="col" data-i18n="ibanLabel">Account Number (IBAN)</th>
+              <th scope="col" data-i18n="purposeLabel">Purpose</th>
+              <th scope="col" aria-sort="none">
+                <button class="sort-button" type="button" data-sort="5"><span data-i18n="categoryLabel">Category</span><span class="sort-indicator" aria-hidden="true"></span></button>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="transactions"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="summary-section" aria-labelledby="summary-heading">
+      <h2 id="summary-heading" data-i18n="summaryHeading">Expense summary by month and category</h2>
+      <div class="table-card">
+        <div class="table-scroll">
+          <table>
+            <caption data-i18n="summaryCaption">Expenses in euros by month and category, including totals</caption>
+            <thead id="summary-head"></thead>
+            <tbody id="monthly-category-summary"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer class="page-footer">
+      <a class="button-link" href="impressum.html" data-i18n="legalNotice">Legal notice</a>
+    </footer>
+  </main>
+
+  <script type="text/plain" id="transaction-data">
+Date;Amount (EUR);Recipient;Account Number (IBAN);Purpose;Category
+01.04.2026;-63,00;DB Vertrieb GmbH;DE58 1559 4078 1618 4959 31;Deutschlandticket 04/2026;Transport
+01.04.2026;-425,00;Hausverwaltung Neckarblick GmbH;DE51 2601 8159 0830 1661 31;Miete WG-Zimmer 04/2026;Food, Housing & Household
+03.04.2026;-14,99;Telefónica Germany GmbH & Co. OHG;DE91 1043 3218 1960 0133 89;Mobilfunkvertrag 04/2026;Other
+05.04.2026;-24,99;McFit GmbH;DE13 8386 3794 0265 4235 11;Mitgliedsbeitrag Fitnessstudio 04/2026;Health & Fitness
+07.04.2026;-39,59;REWE Markt GmbH;DE44 5146 2704 8281 4893 25;Kartenzahlung REWE 07.04.2026;Food, Housing & Household
+08.04.2026;-21,00;Anthropic Ireland, Limited;DE15 3413 1647 5255 3419 28;KI-Abo Monatsbeitrag 04/2026;Leisure & Entertainment
+10.04.2026;-10,00;Musikverein Harmonie e.V.;DE93 7672 4238 8496 9653 28;Mitgliedsbeitrag Musikverein 04/2026;Leisure & Entertainment
+14.04.2026;-16,30;REWE Markt GmbH;DE44 5146 2704 8281 4893 25;Kartenzahlung REWE 14.04.2026;Food, Housing & Household
+15.04.2026;-136,50;Techniker Krankenkasse;DE41 2764 8350 3056 4139 53;Krankenversicherung Student 04/2026;Health & Fitness
+21.04.2026;-44,42;ALDI SÜD;DE78 2278 2489 6383 4657 87;Kartenzahlung ALDI 21.04.2026;Food, Housing & Household
+23.04.2026;-21,28;Lidl Dienstleistung GmbH & Co. KG;DE30 8809 5701 5430 3911 71;Kartenzahlung Lidl 23.04.2026;Food, Housing & Household
+01.05.2026;-63,00;DB Vertrieb GmbH;DE58 1559 4078 1618 4959 31;Deutschlandticket 05/2026;Transport
+01.05.2026;-425,00;Hausverwaltung Neckarblick GmbH;DE51 2601 8159 0830 1661 31;Miete WG-Zimmer 05/2026;Food, Housing & Household
+03.05.2026;-14,99;Telefónica Germany GmbH & Co. OHG;DE91 1043 3218 1960 0133 89;Mobilfunkvertrag 05/2026;Other
+05.05.2026;-24,99;McFit GmbH;DE13 8386 3794 0265 4235 11;Mitgliedsbeitrag Fitnessstudio 05/2026;Health & Fitness
+06.05.2026;-19,33;EDEKA Südwest;DE25 3315 0983 9301 0310 51;Kartenzahlung EDEKA 06.05.2026;Food, Housing & Household
+08.05.2026;-21,00;Anthropic Ireland, Limited;DE15 3413 1647 5255 3419 28;KI-Abo Monatsbeitrag 05/2026;Leisure & Entertainment
+10.05.2026;-10,00;Musikverein Harmonie e.V.;DE93 7672 4238 8496 9653 28;Mitgliedsbeitrag Musikverein 05/2026;Leisure & Entertainment
+11.05.2026;-23,49;EDEKA Südwest;DE25 3315 0983 9301 0310 51;Kartenzahlung EDEKA 11.05.2026;Food, Housing & Household
+15.05.2026;-136,50;Techniker Krankenkasse;DE41 2764 8350 3056 4139 53;Krankenversicherung Student 05/2026;Health & Fitness
+16.05.2026;-44,70;EDEKA Südwest;DE25 3315 0983 9301 0310 51;Kartenzahlung EDEKA 16.05.2026;Food, Housing & Household
+16.05.2026;-31,80;Ristorante Da Marco;DE79 1948 2199 3518 1909 37;Restaurantbesuch 16.05.2026;Other
+27.05.2026;-15,92;REWE Markt GmbH;DE44 5146 2704 8281 4893 25;Kartenzahlung REWE 27.05.2026;Food, Housing & Household
+01.06.2026;-63,00;DB Vertrieb GmbH;DE58 1559 4078 1618 4959 31;Deutschlandticket 06/2026;Transport
+01.06.2026;-425,00;Hausverwaltung Neckarblick GmbH;DE51 2601 8159 0830 1661 31;Miete WG-Zimmer 06/2026;Food, Housing & Household
+03.06.2026;-14,99;Telefónica Germany GmbH & Co. OHG;DE91 1043 3218 1960 0133 89;Mobilfunkvertrag 06/2026;Other
+05.06.2026;-24,99;McFit GmbH;DE13 8386 3794 0265 4235 11;Mitgliedsbeitrag Fitnessstudio 06/2026;Health & Fitness
+06.06.2026;-50,82;REWE Markt GmbH;DE44 5146 2704 8281 4893 25;Kartenzahlung REWE 06.06.2026;Food, Housing & Household
+08.06.2026;-21,00;Anthropic Ireland, Limited;DE15 3413 1647 5255 3419 28;KI-Abo Monatsbeitrag 06/2026;Leisure & Entertainment
+10.06.2026;-29,44;Lidl Dienstleistung GmbH & Co. KG;DE30 8809 5701 5430 3911 71;Kartenzahlung Lidl 10.06.2026;Food, Housing & Household
+10.06.2026;-10,00;Musikverein Harmonie e.V.;DE93 7672 4238 8496 9653 28;Mitgliedsbeitrag Musikverein 06/2026;Leisure & Entertainment
+15.06.2026;-136,50;Techniker Krankenkasse;DE41 2764 8350 3056 4139 53;Krankenversicherung Student 06/2026;Health & Fitness
+19.06.2026;-46,86;Lidl Dienstleistung GmbH & Co. KG;DE30 8809 5701 5430 3911 71;Kartenzahlung Lidl 19.06.2026;Food, Housing & Household
+23.06.2026;-28,40;Lidl Dienstleistung GmbH & Co. KG;DE30 8809 5701 5430 3911 71;Kartenzahlung Lidl 23.06.2026;Food, Housing & Household
+01.07.2026;-63,00;DB Vertrieb GmbH;DE58 1559 4078 1618 4959 31;Deutschlandticket 07/2026;Transport
+01.07.2026;-425,00;Hausverwaltung Neckarblick GmbH;DE51 2601 8159 0830 1661 31;Miete WG-Zimmer 07/2026;Food, Housing & Household
+03.07.2026;-14,99;Telefónica Germany GmbH & Co. OHG;DE91 1043 3218 1960 0133 89;Mobilfunkvertrag 07/2026;Other
+04.07.2026;-24,84;EDEKA Südwest;DE25 3315 0983 9301 0310 51;Kartenzahlung EDEKA 04.07.2026;Food, Housing & Household
+05.07.2026;-24,99;McFit GmbH;DE13 8386 3794 0265 4235 11;Mitgliedsbeitrag Fitnessstudio 07/2026;Health & Fitness
+08.07.2026;-21,00;Anthropic Ireland, Limited;DE15 3413 1647 5255 3419 28;KI-Abo Monatsbeitrag 07/2026;Leisure & Entertainment
+10.07.2026;-10,00;Musikverein Harmonie e.V.;DE93 7672 4238 8496 9653 28;Mitgliedsbeitrag Musikverein 07/2026;Leisure & Entertainment
+11.07.2026;-22,00;Saunawelt Schönbuch GmbH;DE80 6091 3909 9603 0824 62;Saunaeintritt Tageskarte;Leisure & Entertainment
+14.07.2026;-13,94;dm-drogerie markt GmbH + Co. KG;DE75 3473 8299 7376 3116 56;Kartenzahlung dm 14.07.2026;Food, Housing & Household
+15.07.2026;-136,50;Techniker Krankenkasse;DE41 2764 8350 3056 4139 53;Krankenversicherung Student 07/2026;Health & Fitness
+17.07.2026;-25,27;Lidl Dienstleistung GmbH & Co. KG;DE30 8809 5701 5430 3911 71;Kartenzahlung Lidl 17.07.2026;Food, Housing & Household
+23.07.2026;-14,83;dm-drogerie markt GmbH + Co. KG;DE75 3473 8299 7376 3116 56;Kartenzahlung dm 23.07.2026;Food, Housing & Household
+01.08.2026;-63,00;DB Vertrieb GmbH;DE58 1559 4078 1618 4959 31;Deutschlandticket 08/2026;Transport
+01.08.2026;-425,00;Hausverwaltung Neckarblick GmbH;DE51 2601 8159 0830 1661 31;Miete WG-Zimmer 08/2026;Food, Housing & Household
+03.08.2026;-14,99;Telefónica Germany GmbH & Co. OHG;DE91 1043 3218 1960 0133 89;Mobilfunkvertrag 08/2026;Other
+05.08.2026;-24,99;McFit GmbH;DE13 8386 3794 0265 4235 11;Mitgliedsbeitrag Fitnessstudio 08/2026;Health & Fitness
+07.08.2026;-16,17;ALDI SÜD;DE78 2278 2489 6383 4657 87;Kartenzahlung ALDI 07.08.2026;Food, Housing & Household
+08.08.2026;-21,00;Anthropic Ireland, Limited;DE15 3413 1647 5255 3419 28;KI-Abo Monatsbeitrag 08/2026;Leisure & Entertainment
+10.08.2026;-10,00;Musikverein Harmonie e.V.;DE93 7672 4238 8496 9653 28;Mitgliedsbeitrag Musikverein 08/2026;Leisure & Entertainment
+13.08.2026;-33,11;EDEKA Südwest;DE25 3315 0983 9301 0310 51;Kartenzahlung EDEKA 13.08.2026;Food, Housing & Household
+15.08.2026;-136,50;Techniker Krankenkasse;DE41 2764 8350 3056 4139 53;Krankenversicherung Student 08/2026;Health & Fitness
+20.08.2026;-16,16;Lidl Dienstleistung GmbH & Co. KG;DE30 8809 5701 5430 3911 71;Kartenzahlung Lidl 20.08.2026;Food, Housing & Household
+22.08.2026;-79,85;H&M Hennes & Mauritz B.V. & Co. KG;DE97 8657 9754 3231 9487 57;Kleidung Kartenzahlung 22.08.2026;Other
+27.08.2026;-46,35;REWE Markt GmbH;DE44 5146 2704 8281 4893 25;Kartenzahlung REWE 27.08.2026;Food, Housing & Household
+01.09.2026;-63,00;DB Vertrieb GmbH;DE58 1559 4078 1618 4959 31;Deutschlandticket 09/2026;Transport
+01.09.2026;-425,00;Hausverwaltung Neckarblick GmbH;DE51 2601 8159 0830 1661 31;Miete WG-Zimmer 09/2026;Food, Housing & Household
+02.09.2026;-189,50;Universität Tübingen;DE73 1012 2691 6697 8480 18;Semesterbeitrag Wintersemester 2026/27;Other
+02.09.2026;-6,82;dm-drogerie markt GmbH + Co. KG;DE75 3473 8299 7376 3116 56;Kartenzahlung dm 02.09.2026;Food, Housing & Household
+03.09.2026;-14,99;Telefónica Germany GmbH & Co. OHG;DE91 1043 3218 1960 0133 89;Mobilfunkvertrag 09/2026;Other
+05.09.2026;-24,99;McFit GmbH;DE13 8386 3794 0265 4235 11;Mitgliedsbeitrag Fitnessstudio 09/2026;Health & Fitness
+08.09.2026;-21,00;Anthropic Ireland, Limited;DE15 3413 1647 5255 3419 28;KI-Abo Monatsbeitrag 09/2026;Leisure & Entertainment
+10.09.2026;-18,56;EDEKA Südwest;DE25 3315 0983 9301 0310 51;Kartenzahlung EDEKA 10.09.2026;Food, Housing & Household
+10.09.2026;-10,00;Musikverein Harmonie e.V.;DE93 7672 4238 8496 9653 28;Mitgliedsbeitrag Musikverein 09/2026;Leisure & Entertainment
+15.09.2026;-136,50;Techniker Krankenkasse;DE41 2764 8350 3056 4139 53;Krankenversicherung Student 09/2026;Health & Fitness
+17.09.2026;-13,13;dm-drogerie markt GmbH + Co. KG;DE75 3473 8299 7376 3116 56;Kartenzahlung dm 17.09.2026;Food, Housing & Household
+23.09.2026;-38,98;EDEKA Südwest;DE25 3315 0983 9301 0310 51;Kartenzahlung EDEKA 23.09.2026;Food, Housing & Household
+  </script>
+  <script>
+    const csv = document.getElementById("transaction-data").textContent.trim();
+    const rows = csv.split(/\r?\n/).map((line) => line.split(";"));
+    const body = document.getElementById("transactions");
+    const transactions = rows.slice(1);
+    const summaryHead = document.getElementById("summary-head");
+    const summaryBody = document.getElementById("monthly-category-summary");
+    const languageToggle = document.getElementById("language-toggle");
+    const transactionForm = document.getElementById("transaction-form");
+    const formStatus = document.getElementById("form-status");
+    let currentLanguage = "en";
+    let activeSort = null;
+    const messages = {
+      en: {
+        eyebrow: "Sample dataset",
+        title: "Student Bank Transactions",
+        intro: "Example transactions for a student living in Germany, from April to September 2026.",
+        formHeading: "Add a transaction",
+        dateLabel: "Date",
+        amountLabel: "Amount (EUR)",
+        amountHint: "Use a minus sign for expenses.",
+        recipientLabel: "Recipient",
+        ibanLabel: "Account Number (IBAN)",
+        purposeLabel: "Purpose",
+        categoryLabel: "Category",
+        categoryFood: "Food, Housing & Household",
+        categoryTransport: "Transport",
+        categoryHealth: "Health & Fitness",
+        categoryLeisure: "Leisure & Entertainment",
+        categoryOther: "Other",
+        addButton: "Add transaction",
+        addedStatus: "Transaction added.",
+        transactionsLabel: "Bank transaction data",
+        transactionCaption: "Transaction records from the sample CSV dataset",
+        summaryHeading: "Expense summary by month and category",
+        summaryCaption: "Expenses in euros by month and category, including totals",
+        total: "Total",
+        totalExpenses: "Total expenses",
+        legalNotice: "Legal notice",
+        languageButton: "Deutsch",
+        languageButtonLabel: "Switch language to German",
+        pageTitle: "Sample Student Bank Transactions",
+        pageDescription: "A sample table of student bank transactions in Germany."
+      },
+      de: {
+        eyebrow: "Beispieldatensatz",
+        title: "Studentische Banktransaktionen",
+        intro: "Beispieltransaktionen einer Studentin in Deutschland von April bis September 2026.",
+        formHeading: "Transaktion hinzufügen",
+        dateLabel: "Datum",
+        amountLabel: "Betrag (EUR)",
+        amountHint: "Ausgaben mit einem Minuszeichen eingeben.",
+        recipientLabel: "Empfänger",
+        ibanLabel: "Kontonummer (IBAN)",
+        purposeLabel: "Verwendungszweck",
+        categoryLabel: "Kategorie",
+        categoryFood: "Essen, Wohnen & Haushalt",
+        categoryTransport: "Transport",
+        categoryHealth: "Gesundheit & Fitness",
+        categoryLeisure: "Freizeit & Unterhaltung",
+        categoryOther: "Sonstiges",
+        addButton: "Transaktion hinzufügen",
+        addedStatus: "Transaktion hinzugefügt.",
+        transactionsLabel: "Banktransaktionen",
+        transactionCaption: "Transaktionen aus dem Beispieldatensatz",
+        summaryHeading: "Ausgaben nach Monat und Kategorie",
+        summaryCaption: "Ausgaben in Euro nach Monat und Kategorie, einschließlich Summen",
+        total: "Gesamt",
+        totalExpenses: "Gesamtausgaben",
+        legalNotice: "Impressum",
+        languageButton: "English",
+        languageButtonLabel: "Sprache auf Englisch umstellen",
+        pageTitle: "Studentische Banktransaktionen – Beispieldatensatz",
+        pageDescription: "Beispieltabelle mit Banktransaktionen einer Studentin in Deutschland."
+      }
+    };
+    const categoryClasses = {
+      "Food, Housing & Household": "category--food",
+      "Transport": "category--transport",
+      "Health & Fitness": "category--health",
+      "Leisure & Entertainment": "category--leisure",
+      "Other": "category--other"
+    };
+    const categoryMessageKeys = {
+      "Food, Housing & Household": "categoryFood",
+      "Transport": "categoryTransport",
+      "Health & Fitness": "categoryHealth",
+      "Leisure & Entertainment": "categoryLeisure",
+      "Other": "categoryOther"
+    };
+
+    function locale() {
+      return currentLanguage === "de" ? "de-DE" : "en-GB";
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat(locale(), {
+        style: "currency",
+        currency: "EUR"
+      }).format(amount);
+    }
+
+    function categoryLabel(category) {
+      const key = categoryMessageKeys[category];
+      return key ? messages[currentLanguage][key] : category;
+    }
+
+    function transactionMonth(row) {
+      const [, month, year] = row[0].split(".");
+      return `${year}-${month}`;
+    }
+
+    function displayMonth(monthKey) {
+      const [year, month] = monthKey.split("-").map(Number);
+      return new Intl.DateTimeFormat(locale(), {
+        month: "long",
+        year: "numeric",
+        timeZone: "UTC"
+      }).format(Date.UTC(year, month - 1, 1));
+    }
+
+    function displayDate(date) {
+      const [day, month, year] = date.split(".").map(Number);
+      return new Intl.DateTimeFormat(locale(), {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        timeZone: "UTC"
+      }).format(Date.UTC(year, month - 1, day));
+    }
+
+    function translatePurpose(purpose) {
+      if (currentLanguage === "de") return purpose;
+
+      let match = purpose.match(/^Deutschlandticket (\d{2}\/\d{4})$/);
+      if (match) return `German nationwide transit pass (Deutschlandticket) ${match[1]}`;
+
+      match = purpose.match(/^Miete WG-Zimmer (\d{2}\/\d{4})$/);
+      if (match) return `Shared flat room rent ${match[1]}`;
+
+      match = purpose.match(/^Mobilfunkvertrag (\d{2}\/\d{4})$/);
+      if (match) return `Mobile phone plan ${match[1]}`;
+
+      match = purpose.match(/^Mitgliedsbeitrag Fitnessstudio (\d{2}\/\d{4})$/);
+      if (match) return `Gym membership ${match[1]}`;
+
+      match = purpose.match(/^KI-Abo Monatsbeitrag (\d{2}\/\d{4})$/);
+      if (match) return `AI subscription monthly fee ${match[1]}`;
+
+      match = purpose.match(/^Mitgliedsbeitrag Musikverein (\d{2}\/\d{4})$/);
+      if (match) return `Music club membership ${match[1]}`;
+
+      match = purpose.match(/^Krankenversicherung Student (\d{2}\/\d{4})$/);
+      if (match) return `Student health insurance ${match[1]}`;
+
+      match = purpose.match(/^Kartenzahlung (.+?) (\d{2}\.\d{2}\.\d{4})$/);
+      if (match) return `Card payment at ${match[1]} on ${displayDate(match[2])}`;
+
+      match = purpose.match(/^Restaurantbesuch (\d{2}\.\d{2}\.\d{4})$/);
+      if (match) return `Restaurant visit on ${displayDate(match[1])}`;
+
+      if (purpose === "Saunaeintritt Tageskarte") return "Sauna day pass";
+
+      match = purpose.match(/^Kleidung Kartenzahlung (\d{2}\.\d{2}\.\d{4})$/);
+      if (match) return `Clothing purchase (card payment) on ${displayDate(match[1])}`;
+
+      match = purpose.match(/^Semesterbeitrag Wintersemester (.+)$/);
+      if (match) return `Winter semester fee ${match[1]}`;
+
+      return purpose;
+    }
+
+    function renderSummary() {
+      const monthlyTotals = new Map();
+      const categoryTotals = new Map();
+      const categoryMonths = new Map();
+
+      transactions.forEach((row) => {
+        const month = transactionMonth(row);
+        const category = row[5];
+        const expense = Math.max(0, -Number(row[1].replace(",", ".")));
+
+        monthlyTotals.set(month, (monthlyTotals.get(month) || 0) + expense);
+        categoryTotals.set(category, (categoryTotals.get(category) || 0) + expense);
+        if (!categoryMonths.has(category)) categoryMonths.set(category, new Map());
+        const monthlyCategoryTotals = categoryMonths.get(category);
+        monthlyCategoryTotals.set(month, (monthlyCategoryTotals.get(month) || 0) + expense);
+      });
+
+      const months = [...monthlyTotals.keys()].sort();
+      const categories = [...categoryTotals.keys()].sort((a, b) => a.localeCompare(b, locale()));
+      const headerRow = document.createElement("tr");
+      const categoryHeader = document.createElement("th");
+      categoryHeader.scope = "col";
+      categoryHeader.textContent = messages[currentLanguage].categoryLabel;
+      headerRow.appendChild(categoryHeader);
+      months.forEach((month) => {
+        const header = document.createElement("th");
+        header.scope = "col";
+        header.className = "amount";
+        header.textContent = displayMonth(month);
+        headerRow.appendChild(header);
+      });
+      const totalHeader = document.createElement("th");
+      totalHeader.scope = "col";
+      totalHeader.className = "amount";
+      totalHeader.textContent = messages[currentLanguage].total;
+      headerRow.appendChild(totalHeader);
+      summaryHead.replaceChildren(headerRow);
+
+      const summaryRows = [];
+      categories.forEach((category) => {
+        const row = document.createElement("tr");
+        const categoryCell = document.createElement("th");
+        categoryCell.scope = "row";
+        categoryCell.className = `category ${categoryClasses[category] || ""}`;
+        categoryCell.textContent = categoryLabel(category);
+        row.appendChild(categoryCell);
+
+        months.forEach((month) => {
+          const cell = document.createElement("td");
+          cell.className = "amount";
+          cell.textContent = formatCurrency(categoryMonths.get(category).get(month) || 0);
+          row.appendChild(cell);
+        });
+
+        const totalCell = document.createElement("td");
+        totalCell.className = "amount";
+        totalCell.textContent = formatCurrency(categoryTotals.get(category));
+        row.appendChild(totalCell);
+        summaryRows.push(row);
+      });
+
+      const totalRow = document.createElement("tr");
+      totalRow.className = "summary-total";
+      const totalLabel = document.createElement("th");
+      totalLabel.scope = "row";
+      totalLabel.textContent = messages[currentLanguage].totalExpenses;
+      totalRow.appendChild(totalLabel);
+      months.forEach((month) => {
+        const cell = document.createElement("td");
+        cell.className = "amount";
+        cell.textContent = formatCurrency(monthlyTotals.get(month));
+        totalRow.appendChild(cell);
+      });
+      const grandTotal = [...monthlyTotals.values()].reduce((sum, amount) => sum + amount, 0);
+      const grandTotalCell = document.createElement("td");
+      grandTotalCell.className = "amount";
+      grandTotalCell.textContent = formatCurrency(grandTotal);
+      totalRow.appendChild(grandTotalCell);
+      summaryBody.replaceChildren(...summaryRows, totalRow);
+    }
+
+    function renderTransactions(sortedRows) {
+      body.replaceChildren();
+      sortedRows.forEach((row) => {
+        const tr = document.createElement("tr");
+        row.forEach((value, index) => {
+          const td = document.createElement("td");
+          td.textContent = index === 0
+            ? displayDate(value)
+            : index === 1
+              ? formatCurrency(Number(value.replace(",", ".")))
+              : index === 4
+                ? translatePurpose(value)
+                : index === 5
+                  ? categoryLabel(value)
+                  : value;
+          if (index === 1) td.className = "amount";
+          if (index === 5) td.className = `category ${categoryClasses[value] || ""}`;
+          tr.appendChild(td);
+        });
+        body.appendChild(tr);
+      });
+    }
+
+    function sortedTransactions() {
+      if (!activeSort) return [...transactions];
+
+      const { column, ascending } = activeSort;
+      return [...transactions].sort((a, b) => {
+        let comparison;
+        if (column === 1) {
+          comparison = Number(a[column].replace(",", ".")) - Number(b[column].replace(",", "."));
+        } else if (column === 0) {
+          const toTimestamp = (date) => {
+            const [day, month, year] = date.split(".").map(Number);
+            return Date.UTC(year, month - 1, day);
+          };
+          comparison = toTimestamp(a[column]) - toTimestamp(b[column]);
+        } else {
+          comparison = a[column].localeCompare(b[column], locale());
+        }
+        return ascending ? comparison : -comparison;
+      });
+    }
+
+    function renderPage() {
+      renderTransactions(sortedTransactions());
+      renderSummary();
+    }
+
+    function applyLanguage() {
+      const copy = messages[currentLanguage];
+      document.documentElement.lang = currentLanguage;
+      document.title = copy.pageTitle;
+      document.querySelector('meta[name="description"]').content = copy.pageDescription;
+      document.querySelectorAll("[data-i18n]").forEach((element) => {
+        element.textContent = copy[element.dataset.i18n];
+      });
+      document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
+        element.setAttribute("aria-label", copy[element.dataset.i18nAriaLabel]);
+      });
+      languageToggle.textContent = copy.languageButton;
+      languageToggle.setAttribute("aria-label", copy.languageButtonLabel);
+      renderPage();
+    }
+
+    document.querySelectorAll(".sort-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        const column = Number(button.dataset.sort);
+        const sameColumn = activeSort && activeSort.column === column;
+        const ascending = !sameColumn || !activeSort.ascending;
+        activeSort = { column, ascending };
+
+        document.querySelectorAll(".sort-button").forEach((otherButton) => {
+          const otherHeader = otherButton.closest("th");
+          otherHeader.setAttribute("aria-sort", "none");
+          otherButton.querySelector(".sort-indicator").textContent = "";
+        });
+
+        header.setAttribute("aria-sort", ascending ? "ascending" : "descending");
+        button.querySelector(".sort-indicator").textContent = ascending ? " ▲" : " ▼";
+        renderTransactions(sortedTransactions());
+      });
+    });
+
+    languageToggle.addEventListener("click", () => {
+      currentLanguage = currentLanguage === "en" ? "de" : "en";
+      applyLanguage();
+    });
+
+    transactionForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const formData = new FormData(transactionForm);
+      const [year, month, day] = formData.get("date").split("-");
+      const amount = Number(formData.get("amount"));
+      if (!Number.isFinite(amount)) return;
+
+      transactions.push([
+        `${day}.${month}.${year}`,
+        amount.toFixed(2).replace(".", ","),
+        formData.get("recipient").trim(),
+        formData.get("iban").trim(),
+        formData.get("purpose").trim(),
+        formData.get("category")
+      ]);
+      formStatus.textContent = messages[currentLanguage].addedStatus;
+      transactionForm.reset();
+      renderPage();
+    });
+
+    applyLanguage();
+  </script>
+</body>
+</html>
